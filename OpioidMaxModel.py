@@ -29,12 +29,10 @@ import matplotlib.pyplot as plt
 from sklearn import metrics
 
 
-
-
-positive_Test = glob.glob("/Users/sameepshah/Desktop/Data/Opioid_Data/Data/Test/Yes/*.txt")
-negative_Test = glob.glob("/Users/sameepshah/Desktop/Data/Opioid_Data/Data/Test/No/*.txt")
-positive_Train = glob.glob("/Users/sameepshah/Desktop/Data/Opioid_Data/Data/Train/Yes/*.txt")
-negative_Train = glob.glob("/Users/sameepshah/Desktop/Data/Opioid_Data/Data/Train/No/*.txt")
+positive_Test = glob.glob("/home/sshah33/Opioid_Data/Test/Yes/*.txt")
+negative_Test = glob.glob("/home/sshah33/Opioid_Data/Test/No/*.txt")
+positive_Train = glob.glob("/home/sshah33/Opioid_Data/Train/Yes/*.txt")
+negative_Train = glob.glob("/home/sshah33/Opioid_Data/Train/No/*.txt")
 
 def read_files_in_one_dataframe_column(file_name_list):
 	result_df_list = []
@@ -136,12 +134,11 @@ if __name__=="__main__":
     model.add(Dense(1, activation='sigmoid'))
     model.summary()
     #sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-    Adam = optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
+    Adam = optimizers.Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
     model.compile(loss='binary_crossentropy',optimizer=Adam ,metrics=['accuracy'])
     tensorboard = TensorBoard(log_dir="logs/run_a")
-    x = model.fit(np.array(X_train), np.array(y_label), epochs=15, batch_size = 5, validation_data = (np.array(X_dev), np.array(y_dev)), callbacks=[tensorboard])
+    x = model.fit(np.array(X_train), np.array(y_label), epochs=10, batch_size = 1, validation_data = (np.array(X_dev), np.array(y_dev)), callbacks=[tensorboard])
     prediction = model.predict_classes(np.array(X_test), batch_size = 1)
-    print(prediction)
     accuracy = accuracy_score(np.array(Test_label), prediction)
     print(accuracy)
     
@@ -172,6 +169,21 @@ if __name__=="__main__":
     plt.xlabel('Epochs')
     plt.ylabel('Acc')
     plt.legend()
+    plt.show()
+    
+    fpr, tpr, _ = metrics.roc_curve(Test_label , prediction)
+    roc_auc = metrics.auc(fpr, tpr)
+    plt.figure()
+    lw = 2
+    plt.plot(fpr, tpr, color='darkorange',
+             lw=lw, label='ROC curve (area = %0.2f)' % roc_auc)
+    plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver Operating Characteristic')
+    plt.legend(loc="lower right")
     plt.show()
     
     
